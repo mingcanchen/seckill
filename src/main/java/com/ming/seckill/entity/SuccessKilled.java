@@ -2,13 +2,14 @@ package com.ming.seckill.entity;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @author chenmingcan
  */
 @Data
-public class SuccessKilled {
+public class SuccessKilled implements Serializable {
     private long seckillId;
     private long userPhone;
     private short state;
