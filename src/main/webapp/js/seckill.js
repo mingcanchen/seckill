@@ -18,7 +18,7 @@ var seckill = {
 
     //验证手机号
     validatePhone: function (phone) {
-        if (phone && phone.length == 11 && !isNaN(phone)) {
+        if (phone && phone.length === 11 && !isNaN(phone)) {
             return true;//直接判断对象会看对象是否为空,空就是undefine就是false; isNaN 非数字返回true
         } else {
             return false;

@@ -23,26 +23,31 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by codingBoy on 16/11/28.
+ * @author chenmingcan
  */
 //@Component @Service @Dao @Controller
 @Service
 public class SeckillServiceImpl implements SeckillService {
-    //日志对象
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    //加入一个混淆字符串(秒杀接口)的salt，为了我避免用户猜出我们的md5值，值任意给，越复杂越好
-    private final String salt = "shsdssljdd'l.";
+    /**
+     * 加入一个混淆字符串(秒杀接口)的salt，为了我避免用户猜出我们的md5值，值任意给，越复杂越好
+     */
+    private final static String SALT = "shsdssljdd'l.";
 
-    //注入Service依赖
-    @Autowired //@Resource
     private SeckillDao seckillDao;
 
-    @Autowired //@Resource
     private SuccessKilledDao successKilledDao;
 
-    @Autowired
     private RedisDao redisDao;
+
+    @Autowired
+    public SeckillServiceImpl(SeckillDao seckillDao, SuccessKilledDao successKilledDao, RedisDao redisDao) {
+        this.seckillDao = seckillDao;
+        this.successKilledDao = successKilledDao;
+        this.redisDao = redisDao;
+    }
 
     @Override
     public List<Seckill> getSeckillList() {
@@ -74,9 +79,8 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
     private String getMD5(long seckillId) {
-        String base = seckillId + "/" + salt;
-        String md5 = DigestUtils.md5DigestAsHex(base.getBytes());
-        return md5;
+        String base = seckillId + "/" + SALT;
+        return DigestUtils.md5DigestAsHex(base.getBytes());
     }
 
     //秒杀是否成功，成功:减库存，增加明细；失败:抛出异常，事务回滚
@@ -121,10 +125,8 @@ public class SeckillServiceImpl implements SeckillService {
             }
 
 
-        } catch (SeckillCloseException e1) {
+        } catch (SeckillCloseException | RepeatKillException e1) {
             throw e1;
-        } catch (RepeatKillException e2) {
-            throw e2;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             //所以编译期异常转化为运行期异常
